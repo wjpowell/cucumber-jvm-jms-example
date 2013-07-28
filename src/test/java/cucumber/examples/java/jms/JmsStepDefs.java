@@ -24,8 +24,8 @@ public class JmsStepDefs {
 	private Queue inputDestination;
 	private MessageConsumer outputConsumer;
 	private MessageProducer inputProducer;
-	private List<Trade> receivedTrades;
-	private List<Trade> expectedTrades;
+	private List<Trade> receivedTrades = new ArrayList<Trade>();
+	private List<Trade> expectedTrades = new ArrayList<Trade>();
 
 	@Given("^the test is connected to the JMS Server$")
 	public void the_test_is_connected_to_the_JMS_Server() throws Throwable {
