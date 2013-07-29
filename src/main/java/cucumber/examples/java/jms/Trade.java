@@ -10,7 +10,7 @@ public class Trade implements Serializable {
 	
 	private double price;
 	private String buyer;
-	private String Seller;
+	private String seller;
 	private String quantity;
 	private String product;
 	private boolean executed;
@@ -40,11 +40,11 @@ public class Trade implements Serializable {
 	}
 
 	public String getSeller() {
-		return Seller;
+		return seller;
 	}
 
 	public void setSeller(String seller) {
-		Seller = seller;
+		this.seller = seller;
 	}
 
 	public String getQuantity() {
@@ -66,7 +66,7 @@ public class Trade implements Serializable {
 	@Override
 	public String toString() {
 		return "Trade [price=" + price + ", buyer=" + buyer + ", Seller="
-				+ Seller + ", quantity=" + quantity + ", product=" + product
+				+ seller + ", quantity=" + quantity + ", product=" + product
 				+ ", executed=" + executed + "]";
 	}
 
@@ -74,7 +74,7 @@ public class Trade implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((Seller == null) ? 0 : Seller.hashCode());
+		result = prime * result + ((seller == null) ? 0 : seller.hashCode());
 		result = prime * result + ((buyer == null) ? 0 : buyer.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(price);
@@ -97,11 +97,11 @@ public class Trade implements Serializable {
 			return false;
 		}
 		Trade other = (Trade) obj;
-		if (Seller == null) {
-			if (other.Seller != null) {
+		if (seller == null) {
+			if (other.seller != null) {
 				return false;
 			}
-		} else if (!Seller.equals(other.Seller)) {
+		} else if (!seller.equals(other.seller)) {
 			return false;
 		}
 		if (buyer == null) {

@@ -14,6 +14,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import cucumber.examples.java.jms.utilities.JmsTestUtilities;
+import cucumber.examples.java.jms.utilities.TradeReader;
 
 public class JmsStepDefs {
 	private JmsTestUtilities jmsTestUtilities;
@@ -50,9 +51,8 @@ public class JmsStepDefs {
     	jmsTestUtilities.attachListenerToOutputConsumer(testListener, outputConsumer);
 	}
 
-	@When("^a Trade is sent.$")
+	@When("^The Trades are sent$")
 	public void a_Trade_is_sent() throws Throwable {
-    	expectedTrades.add(new Trade());
     	for(Trade trade : expectedTrades) {
     		jmsTestUtilities.sendMessage(trade, inputProducer);
     	}
@@ -65,19 +65,28 @@ public class JmsStepDefs {
 
 	@Then("^the trade sent and the trade received should be equal$")
 	public void the_trade_sent_and_the_trade_received_should_be_equal() throws Throwable {
-		assertEquals(expectedTrades.get(0),receivedTrades.get(0));
+		for(Trade expectedTrade : expectedTrades) {
+			assertTrue(receivedTrades.contains(expectedTrade));
+		}
 	}
 
 	@Then("^the trade received should be executed$")
 	public void the_trade_received_should_be_executed() throws Throwable {
-    	assertTrue(receivedTrades.get(0).isExecuted());
+    	for(Trade receivedTrade : receivedTrades) {
+    		assertTrue(receivedTrade.isExecuted());
+    	}
 	}
 
 	@Then("^the session should be closed$")
 	public void the_session_should_be_closed() throws Throwable {
 		jmsTestUtilities.closeSession();
 	}
-
+	
+	@Given("^a collection of Trades is loaded from the \"([^\"]*)\" sheet$")
+	public void a_collection_of_Trades_is_loaded_from_the_sheet(String sheeName) throws Throwable {
+	    TradeReader tradeReader = new TradeReader(sheeName);
+		expectedTrades = tradeReader.getTrades();
+	}
 
 	private void waitUntilAllOutputIsReceived(int receivedTrades, int expectedTrades, int timeout) throws InterruptedException {
 		int timeoutReached = 0;

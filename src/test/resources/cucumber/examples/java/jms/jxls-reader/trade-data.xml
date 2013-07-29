@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<workbook>
+	<worksheet name="Sheet1">
+		<section startRow="0" endRow="0"/>
+		<loop startRow="1" endRow="1" items="trades" var="trade"
+			varType="cucumber.examples.java.jms.Trade">
+			<section startRow="1" endRow="1">
+				<mapping row="1" col="0">trade.buyer</mapping>
+				<mapping row="1" col="1">trade.seller</mapping>
+				<mapping row="1" col="2">trade.quantity</mapping>
+				<mapping row="1" col="3">trade.price</mapping>
+				<mapping row="1" col="4">trade.product</mapping>
+			</section>
+			<loopbreakcondition>
+				<rowcheck offset="0">
+					<cellcheck offset="0"></cellcheck>
+				</rowcheck>
+			</loopbreakcondition>
+		</loop>
+	</worksheet>
+</workbook>
