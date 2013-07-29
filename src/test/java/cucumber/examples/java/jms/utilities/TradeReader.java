@@ -29,7 +29,6 @@ public class TradeReader {
         XLSReader mainReader = ReaderBuilder.buildFromXML( inputXML );
 		InputStream inputXLS = new BufferedInputStream(getClass().getResourceAsStream(dataXLS));
         List<Trade> trades = new ArrayList<Trade>();
-        Trade trade = new Trade();
         Map<String, Object> beans = new HashMap<String, Object>();
         beans.put("trades", trades);
         XLSReadStatus readStatus = mainReader.read(inputXLS, beans);

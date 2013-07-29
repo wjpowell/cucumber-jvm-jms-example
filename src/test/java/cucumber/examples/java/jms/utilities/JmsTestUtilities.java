@@ -85,6 +85,7 @@ public class JmsTestUtilities {
 		
 		MessageListener testListener = new MessageListener() {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void onMessage(Message received) {
 	            if (received instanceof ObjectMessage) {  	
