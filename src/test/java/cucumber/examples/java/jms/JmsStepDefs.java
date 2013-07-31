@@ -4,10 +4,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jms.ConnectionFactory;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
+
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -26,11 +29,13 @@ public class JmsStepDefs {
 	private MessageProducer inputProducer;
 	private List<Trade> receivedTrades = new ArrayList<Trade>();
 	private List<Trade> expectedTrades = new ArrayList<Trade>();
+	private ConnectionFactory connectionFactory;
 
 	@Given("^the test is connected to the JMS Server$")
 	public void the_test_is_connected_to_the_JMS_Server() throws Throwable {
-		jmsTestUtilities = new JmsTestUtilities();
-		jmsTestUtilities.startServerSession(JMS_SERVER_URL);
+		connectionFactory = new ActiveMQConnectionFactory(JMS_SERVER_URL);
+		jmsTestUtilities = new JmsTestUtilities(connectionFactory);
+		jmsTestUtilities.startServerSession();
 		inputDestination = jmsTestUtilities.createQueue(INPUT_QUEUE);
 	    inputProducer = jmsTestUtilities.createInputProducer(inputDestination);
 	    	

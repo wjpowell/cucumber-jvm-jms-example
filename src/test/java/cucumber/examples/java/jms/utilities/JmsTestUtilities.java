@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -20,6 +21,11 @@ import cucumber.examples.java.jms.MessageForwarder;
 public class JmsTestUtilities {
 	private Session session;
 	private Connection connection;
+	private ConnectionFactory connectionFactory;
+
+	public JmsTestUtilities(ConnectionFactory connectionFactory) {
+		this.connectionFactory = connectionFactory;
+	}
 
 	public Queue createQueue(String queueName) throws JMSException {
 		return session.createQueue(queueName);
@@ -49,8 +55,7 @@ public class JmsTestUtilities {
 		connection.close();
 	}
 
-	public void startServerSession(String jmsServerUrl) throws JMSException {
-		ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(jmsServerUrl);
+	public void startServerSession() throws JMSException {
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

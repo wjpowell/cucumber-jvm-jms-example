@@ -1,6 +1,7 @@
 package cucumber.examples.java.jms;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -17,7 +18,7 @@ public class MessageForwarder implements MessageListener {
 
 	private static final String QUEUE_NAME = "TEST.OUTPUT";
 	private String JMS_SERVER_URL = "vm://localhost:61616";
-	private ActiveMQConnectionFactory connectionFactory;
+	private ConnectionFactory connectionFactory;
 	private Session session;
 	private Connection connection;
 	private Destination destination;
