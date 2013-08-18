@@ -9,4 +9,3 @@ Feature: Asynchronous JMS
     And we wait until all trades have been processed
     Then the trade sent and the trade received should be equal
     And the trade received should be executed
-    And the session should be closed

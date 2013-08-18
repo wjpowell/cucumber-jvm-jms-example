@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
@@ -19,7 +20,7 @@ import cucumber.examples.java.jms.utilities.JmsTestUtilities;
 import cucumber.examples.java.jms.utilities.TradeReader;
 
 public class JmsStepDefs {
-	private JmsTestUtilities jmsTestUtilities;
+	private static JmsTestUtilities jmsTestUtilities;
 	private static final int MESSAGE_TIMEOUT = 10000;
 	private static final String INPUT_QUEUE = "TEST.INPUT";
 	private static final String OUTPUT_QUEUE = "TEST.OUTPUT";
@@ -29,21 +30,23 @@ public class JmsStepDefs {
 	private MessageProducer inputProducer;
 	private List<Trade> receivedTrades = new ArrayList<Trade>();
 	private List<Trade> expectedTrades = new ArrayList<Trade>();
-	private ConnectionFactory connectionFactory;
 
 	@Given("^the test is connected to the JMS Server$")
 	public void the_test_is_connected_to_the_JMS_Server() throws Throwable {
-		connectionFactory = new ActiveMQConnectionFactory(JMS_SERVER_URL);
-		jmsTestUtilities = new JmsTestUtilities(connectionFactory);
-		jmsTestUtilities.startServerSession();
 		inputDestination = jmsTestUtilities.createQueue(INPUT_QUEUE);
 	    inputProducer = jmsTestUtilities.createInputProducer(inputDestination);
 	    	
 	  }
 
+	public static void startUpServer() throws JMSException {
+		ConnectionFactory connectionFactory = new ActiveMQConnectionFactory(JMS_SERVER_URL);
+		jmsTestUtilities = new JmsTestUtilities(connectionFactory);
+		jmsTestUtilities.startServerSession();
+	}
+
 	@Given("^I create a simple Application to Receive the input$")
 	public void I_create_a_simple_Application_to_Receive_the_input() throws Throwable {
-		jmsTestUtilities.attachTestApplicationToQueue(inputDestination);
+		attachTestApplicationToQueue(inputDestination);
         outputConsumer = jmsTestUtilities.createOutputReceiver(OUTPUT_QUEUE);
 
 	}
@@ -64,7 +67,7 @@ public class JmsStepDefs {
 
 	@When("^we wait until all trades have been processed$")
 	public void we_wait_until_all_trades_have_been_processed() throws Throwable {
-		waitUntilAllOutputIsReceived(receivedTrades.size(), expectedTrades.size(), MESSAGE_TIMEOUT);
+		waitUntilAllOutputIsReceived(receivedTrades, expectedTrades.size(), MESSAGE_TIMEOUT);
 	}
 
 	@Then("^the trade sent and the trade received should be equal$")
@@ -81,8 +84,7 @@ public class JmsStepDefs {
     	}
 	}
 
-	@Then("^the session should be closed$")
-	public void the_session_should_be_closed() throws Throwable {
+	public static void closeDownServer() throws JMSException {
 		jmsTestUtilities.closeSession();
 	}
 	
@@ -92,11 +94,21 @@ public class JmsStepDefs {
 		expectedTrades = tradeReader.getTrades();
 	}
 
-	private void waitUntilAllOutputIsReceived(int receivedTrades, int expectedTrades, int timeout) throws InterruptedException {
+	private void waitUntilAllOutputIsReceived(List<Trade> receivedTrades, int expectedTrades, int timeout) throws InterruptedException {
 		int timeoutReached = 0;
-		while (receivedTrades != expectedTrades && timeoutReached < timeout) {
+		while (receivedTrades.size() != expectedTrades && timeoutReached < timeout) {
 	    		Thread.sleep(2000);
 	    		timeoutReached += 2000;
 	    }
+	}
+	
+	private void attachTestApplicationToQueue(Queue inputDestination) throws JMSException {
+		MessageConsumer inputConsumer = jmsTestUtilities.getSession().createConsumer(inputDestination);
+    	attachTestApplicationToJMSQueue(inputConsumer);
+	}
+
+	private void attachTestApplicationToJMSQueue(MessageConsumer inputConsumer) throws JMSException {
+		MessageForwarder messageForwarder = new MessageForwarder();
+		inputConsumer.setMessageListener(messageForwarder);
 	}
 }

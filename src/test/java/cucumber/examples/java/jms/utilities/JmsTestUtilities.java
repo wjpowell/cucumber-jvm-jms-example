@@ -2,7 +2,6 @@ package cucumber.examples.java.jms.utilities;
 
 import java.io.Serializable;
 import java.util.List;
-
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
@@ -14,9 +13,6 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
-import org.apache.activemq.ActiveMQConnectionFactory;
-
-import cucumber.examples.java.jms.MessageForwarder;
 
 public class JmsTestUtilities {
 	private Session session;
@@ -31,25 +27,17 @@ public class JmsTestUtilities {
 		return session.createQueue(queueName);
 	}
 
-	private void attachTestApplicationToJMSQueue(MessageConsumer inputConsumer) throws JMSException {
-		MessageForwarder messageForwarder = new MessageForwarder();
-		inputConsumer.setMessageListener(messageForwarder);
+	public void sendMessage(Serializable object, MessageProducer producer) {
+		try {
+			// Create a messages
+			ObjectMessage message = session.createObjectMessage(object);
+			producer.send(message);
+		} catch (Exception e) {
+			System.out.println("Caught: " + e);
+			e.printStackTrace();
+		}
 	}
 
-    
-    public void sendMessage(Serializable object, MessageProducer producer) {
-    	try {  
-            // Create a messages
-            ObjectMessage message = session.createObjectMessage(object);
-            producer.send(message);
-        }
-        catch (Exception e) {
-            System.out.println("Caught: " + e);
-            e.printStackTrace();
-        }
-    }
-    
-   
 	public void closeSession() throws JMSException {
 		session.close();
 		connection.close();
@@ -58,52 +46,54 @@ public class JmsTestUtilities {
 	public void startServerSession() throws JMSException {
 		connection = connectionFactory.createConnection();
 		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
 		connection.start();
 	}
 
 	public MessageProducer createInputProducer(Queue inputDestination)
 			throws JMSException {
-	    MessageProducer producer = session.createProducer(inputDestination);
-        producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+		MessageProducer producer = session.createProducer(inputDestination);
+		producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
 		return producer;
 	}
 
-	public void attachTestApplicationToQueue(Queue inputDestination) throws JMSException {
-		MessageConsumer inputConsumer = session.createConsumer(inputDestination);
-    	attachTestApplicationToJMSQueue(inputConsumer);
-	}
-
-	public MessageConsumer createOutputReceiver(String outputQueue) throws JMSException {
+	public MessageConsumer createOutputReceiver(String outputQueue)
+			throws JMSException {
 		Queue outputDestination = session.createQueue(outputQueue);
-		MessageConsumer outputConsumer = session.createConsumer(outputDestination);
-		
+		MessageConsumer outputConsumer = session
+				.createConsumer(outputDestination);
+
 		return outputConsumer;
 	}
 
-	public void attachListenerToOutputConsumer(MessageListener testListener, MessageConsumer outputConsumer) throws JMSException {
+	public void attachListenerToOutputConsumer(MessageListener testListener,
+			MessageConsumer outputConsumer) throws JMSException {
 		outputConsumer.setMessageListener(testListener);
 	}
 
-	public <T> MessageListener createTestListener(final List<T> receivedCollection) {
-		
+	public <T> MessageListener createTestListener(
+			final List<T> receivedCollection) {
+
 		MessageListener testListener = new MessageListener() {
 
 			@SuppressWarnings("unchecked")
 			@Override
 			public void onMessage(Message received) {
-	            if (received instanceof ObjectMessage) {  	
+				if (received instanceof ObjectMessage) {
 					try {
-						receivedCollection.add((T)((ObjectMessage) received).getObject());
+						receivedCollection.add((T) ((ObjectMessage) received)
+								.getObject());
 					} catch (JMSException e) {
 						e.printStackTrace();
 					}
-	            }
+				}
 			}
 		};
 		return testListener;
 	}
 
+	public Session getSession() {
+		return session;
+	}
 
- }
+}
